@@ -1,0 +1,21 @@
+# Flutter/Dart/Pub related
+**/doc/api/
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# macOS
+.DS_Store
+
+# Platform folders (not included in this starter — run `flutter create .`
+# in this directory to generate android/, ios/, web/, etc.)
