@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import 'app/router.dart';
 import 'core/theme/app_theme.dart';
-import 'features/landing/landing_page.dart';
 
 void main() {
+  usePathUrlStrategy(); // clean web URLs: /schools/product-management
   runApp(const CareerTransformationApp());
 }
 
@@ -11,11 +13,11 @@ class CareerTransformationApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Career Transformation Institute',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: const LandingPage(),
+      routerConfig: appRouter,
     );
   }
 }

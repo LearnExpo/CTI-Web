@@ -17,33 +17,8 @@ import 'sections/schools/schools_section.dart';
 import 'sections/solution/solution_section.dart';
 import 'sections/technology/technology_section.dart';
 import 'sections/vision/vision_section.dart';
-import 'widgets/nav_bar.dart';
-import 'widgets/mobile_nav_drawer.dart';
+import '../../app/home_scroll_controller.dart';
 
-/// Assembles the full landing page, per the Phase 5 flow:
-///
-/// LandingPage
-///     ├── HeroSection()
-///     ├── VisionSection()
-///     ├── ProblemSection()
-///     ├── SolutionSection()
-///     ├── JourneySection()
-///     ├── FrameworkSection()
-///     ├── SchoolsSection()
-///     ├── ProjectsSection()
-///     ├── InternshipSection()
-///     ├── PlacementSection()
-///     ├── TechnologySection()
-///     ├── PartnersSection()
-///     ├── MetricsSection()
-///     ├── RoadmapSection()
-///     ├── InvestmentSection()
-///     ├── FAQSection()
-///     └── FooterSection()
-///
-/// Only [HeroSection] is fully designed for this first milestone; the rest
-/// render as labeled placeholders so the whole page can be reviewed and
-/// scrolled end-to-end, then filled in one section at a time.
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
 
@@ -53,28 +28,51 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   final ScrollController _scrollController = ScrollController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  // add these — one per nav item, mapped to the closest matching section
-  final GlobalKey _aboutKey = GlobalKey(); // -> Vision
-  final GlobalKey _schoolsKey = GlobalKey(); // -> Schools
-  final GlobalKey _partnersKey = GlobalKey(); // -> Partners
-  final GlobalKey _contactKey = GlobalKey(); // -> Footer
-  final GlobalKey _journeyKey = GlobalKey(); // add
-  final GlobalKey _investmentKey = GlobalKey(); // add
+  final GlobalKey _aboutKey = GlobalKey();
+  final GlobalKey _schoolsKey = GlobalKey();
+  final GlobalKey _partnersKey = GlobalKey();
+  final GlobalKey _contactKey = GlobalKey();
+  final GlobalKey _journeyKey = GlobalKey();
+  final GlobalKey _investmentKey = GlobalKey();
+
+  int _lastHandledRequestId = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    homeScrollController.addListener(_onScrollRequest);
+    // Handles the case where a request was made just before this page
+    // mounted (e.g. navigating here from a school detail page).
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onScrollRequest());
+  }
 
   @override
   void dispose() {
+    homeScrollController.removeListener(_onScrollRequest);
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _scrollToTop() {
-    _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeOut,
-    );
+  void _onScrollRequest() {
+    if (homeScrollController.requestId == _lastHandledRequestId) return;
+    final target = homeScrollController.target;
+    if (target == null) return;
+    _lastHandledRequestId = homeScrollController.requestId;
+    // Wait a frame so section widgets are laid out before we measure them.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToKey(_keyFor(target));
+    });
   }
+
+  GlobalKey _keyFor(String section) => switch (section) {
+        'about' => _aboutKey,
+        'schools' => _schoolsKey,
+        'partners' => _partnersKey,
+        'contact' => _contactKey,
+        'journey' => _journeyKey,
+        'investment' => _investmentKey,
+        _ => _aboutKey,
+      };
 
   void _scrollToKey(GlobalKey key) {
     if (key.currentContext != null) {
@@ -86,19 +84,6 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
-  void _handleNavTap(String item) {
-    final key = switch (item) {
-      'About' => _aboutKey,
-      'Schools' => _schoolsKey,
-      'Partners' => _partnersKey,
-      'Contact' => _contactKey,
-      'Journey'=> _journeyKey,
-      'Investment'=>_investmentKey,
-      _ => null,
-    };
-    if (key != null) _scrollToKey(key);
-  }
-
   void _showComingSoonDialog(String title, String message) {
     showDialog(
       context: context,
@@ -108,9 +93,8 @@ class _LandingPageState extends State<LandingPage> {
         content: Text(message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Got it'),
-          ),
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Got it')),
         ],
       ),
     );
@@ -119,28 +103,14 @@ class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: AppColors.background,
-      appBar: NavBar(
-        onCtaPressed: () =>
-            _scrollToKey(_schoolsKey), // "Get Started" -> Schools
-        onMenuPressed: () => _scaffoldKey.currentState?.openDrawer(),
-        onNavItemTap: _handleNavTap,
-      ),
-      drawer: MobileNavDrawer(
-        onCtaPressed: () =>
-            _scrollToKey(_schoolsKey), // same destination as desktop nav
-        onNavItemTap: _handleNavTap,
-      ),
+      backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
         controller: _scrollController,
         child: Column(
           children: [
             HeroSection(
-              onPrimaryCta: () =>
-                  _scrollToKey(_schoolsKey), // "Start Your Journey" -> Schools
-              onSecondaryCta: () => _scrollToKey(
-                  _schoolsKey), // "Explore Career Schools" -> Schools
+              onPrimaryCta: () => _scrollToKey(_schoolsKey),
+              onSecondaryCta: () => _scrollToKey(_schoolsKey),
             ),
             VisionSection(key: _aboutKey),
             const ProblemSection(),
@@ -168,7 +138,11 @@ class _LandingPageState extends State<LandingPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton.small(
-        onPressed: _scrollToTop,
+        onPressed: () => _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOut,
+        ),
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.arrow_upward_rounded, color: Colors.white),
       ),

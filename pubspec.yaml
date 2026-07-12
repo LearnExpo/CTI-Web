@@ -27,6 +27,9 @@ dependencies:
   # Scroll-triggered animations (e.g. AnimatedCounter)
   visibility_detector: ^0.4.0+2
 
+  flutter_web_plugins:
+    sdk: flutter
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

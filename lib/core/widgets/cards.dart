@@ -1,4 +1,7 @@
 import 'dart:ui';
+import 'package:career_transformation_institute/core/widgets/buttons.dart';
+import 'package:career_transformation_institute/core/widgets/misc_widgets.dart';
+import 'package:career_transformation_institute/widget/candidate_contact_dialog.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
@@ -178,35 +181,94 @@ class MetricCard extends StatelessWidget {
 /// Feature-style card with a leading badge — used in the Five-Layer
 /// Training Architecture and Career Schools sections.
 class FeatureCard extends StatelessWidget {
+  final bool isRegistrationStarted;
   final String badge;
   final String title;
   final String description;
+  final VoidCallback? onTap;
 
   const FeatureCard({
     super.key,
+    this.isRegistrationStarted = false,
     required this.badge,
     required this.title,
     required this.description,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return AnimatedCard(
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            badge,
-            style: AppTypography.caption.copyWith(
-              color: AppColors.secondary,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.2,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                badge,
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.secondary,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              if (isRegistrationStarted)
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.circle,
+                      color: Colors.red,
+                      size: 20,
+                    ),
+                    Text(
+                      '  Registration Started',
+                      style: AppTypography.caption.copyWith(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                )
+            ],
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(title, style: AppTypography.headingS.copyWith(fontSize: 22)),
           const SizedBox(height: AppSpacing.xs),
           Text(description, style: AppTypography.body.copyWith(fontSize: 15)),
+          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: AppSpacing.xs),
+          if (isRegistrationStarted)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Column(
+                  children: [
+                    const TagChip(
+                      label: 'Start Date: 07-07-2026',
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    TagChip(
+                      label: 'End Date  : 08-08-2026',
+                      color: Colors.red[200],
+                    )
+                  ],
+                ),
+                PrimaryButton(
+                    label: 'Get Started',
+                    onPressed: () async {
+                      await showDialog<Map<String, String>>(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) =>
+                            const ClientContactDialog(),
+                      );
+                    }),
+              ],
+            )
         ],
       ),
     );
