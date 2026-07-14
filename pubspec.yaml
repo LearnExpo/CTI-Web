@@ -38,10 +38,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  assets:
-    - assets/images/
-    - assets/icons/
-    - assets/animations/lottie/
+  # assets:
+  #   - assets/images/
+  #   - assets/icons/
+  #   - assets/animations/lottie/
 
   # Uncomment and add font files once you drop them into assets/fonts
   # fonts:
