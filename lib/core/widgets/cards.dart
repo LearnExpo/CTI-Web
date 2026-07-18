@@ -240,35 +240,6 @@ class FeatureCard extends StatelessWidget {
           Text(description, style: AppTypography.body.copyWith(fontSize: 15)),
           const SizedBox(height: AppSpacing.xs),
           const SizedBox(height: AppSpacing.xs),
-          if (isRegistrationStarted)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Column(
-                  children: [
-                    const TagChip(
-                      label: 'Start Date: 07-07-2026',
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    TagChip(
-                      label: 'End Date  : 08-08-2026',
-                      color: Colors.red[200],
-                    )
-                  ],
-                ),
-                PrimaryButton(
-                    label: 'Get Started',
-                    onPressed: () async {
-                      await showDialog<Map<String, String>>(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (BuildContext context) =>
-                            const ClientContactDialog(),
-                      );
-                    }),
-              ],
-            )
         ],
       ),
     );

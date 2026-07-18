@@ -229,6 +229,43 @@ class _DetailBody extends StatelessWidget {
       child: ResponsiveBuilder(
         mobile: (_) => Column(
           children: [
+            if (school.isRegistrationStarted)
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.calendar_month),
+                        const SizedBox(width: AppSpacing.xs),
+                        Text('IMPORTANT DATES',
+                            style: AppTypography.headingS.copyWith(
+                                fontSize: 22,
+                                color: Colors.red,
+                                letterSpacing: 2)),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    const TagChip(
+                      label: 'Start Date: 07-07-2026',
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    TagChip(
+                      label: 'End Date  : 08-08-2026',
+                      color: Colors.red[200],
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    const _EnrollCta(),
+                  ],
+                ),
+              ),
+            const SizedBox(height: AppSpacing.xl),
             _CurriculumList(school: school),
             const SizedBox(height: AppSpacing.xl),
             _OutcomesList(school: school),
@@ -239,7 +276,58 @@ class _DetailBody extends StatelessWidget {
         desktop: (_) => Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(flex: 6, child: _CurriculumList(school: school)),
+            Expanded(
+                flex: 6,
+                child: Column(
+                  children: [
+                    if (school.isRegistrationStarted)
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(AppRadius.lg),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          children: [
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.calendar_month),
+                                    const SizedBox(width: AppSpacing.xs),
+                                    Text('IMPORTANT DATES',
+                                        style: AppTypography.headingS.copyWith(
+                                            fontSize: 22,
+                                            color: Colors.red,
+                                            letterSpacing: 2)),
+                                  ],
+                                ),
+                                const SizedBox(height: AppSpacing.lg),
+                                const TagChip(
+                                  label: 'Start Date: 07-07-2026',
+                                ),
+                                const SizedBox(height: AppSpacing.xs),
+                                TagChip(
+                                  label: 'End Date  : 08-08-2026',
+                                  color: Colors.red[200],
+                                ),
+                                const SizedBox(height: AppSpacing.xs),
+                              ],
+                            ),
+                            const SizedBox(width: AppSpacing.lg),
+                            const Expanded(
+                              child: Text(
+                                  'Seats are filling fast! Click here to secure your spot before registration closes.'),
+                            )
+                          ],
+                        ),
+                      ),
+                    const SizedBox(height: AppSpacing.lg),
+                    _CurriculumList(school: school),
+                  ],
+                )),
             const SizedBox(width: AppSpacing.xl),
             Expanded(
               flex: 4,

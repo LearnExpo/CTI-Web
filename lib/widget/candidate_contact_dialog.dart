@@ -234,12 +234,14 @@ class _ClientContactDialogState extends State<ClientContactDialog> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Text(
-                      'Candidate Contact Info',
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                    Expanded(
+                      child: Text(
+                        'Candidate Contact Info',
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                      ),
                     ),
                   ],
                 ),
@@ -248,7 +250,7 @@ class _ClientContactDialogState extends State<ClientContactDialog> {
                 Text(
                   '**Please fill in all the details below to receive your complete course brochure and schedule.**',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: Colors.redAccent.shade200,
                       ),
                 ),
                 const SizedBox(height: 24),
