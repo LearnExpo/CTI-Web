@@ -27,8 +27,13 @@ dependencies:
   # Scroll-triggered animations (e.g. AnimatedCounter)
   visibility_detector: ^0.4.0+2
 
+  dio: ^5.4.0            # HTTP client with interceptors
+  get_it: ^7.7.0          # simple service locator for DI
+  provider: ^6.1.2        # lightweight state management for controllers
+
   flutter_web_plugins:
     sdk: flutter
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

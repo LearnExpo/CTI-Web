@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class ClientContactDialog extends StatefulWidget {
   const ClientContactDialog({super.key});
@@ -21,15 +23,163 @@ class _ClientContactDialogState extends State<ClientContactDialog> {
     super.dispose();
   }
 
-  void _submitData() {
+  bool _isLoading = false;
+
+  void _submitData() async {
+    // Prevent double submissions if already loading
+    if (_isLoading) return;
+
     if (_formKey.currentState!.validate()) {
+      // 2. Set loading state and refresh UI
+      setState(() {
+        _isLoading = true;
+      });
+
       final contactData = {
         'name': _nameController.text.trim(),
-        'mobile': _mobileController.text.trim(),
         'email': _emailController.text.trim(),
+        'phone': _mobileController.text.trim(),
       };
-      Navigator.of(context).pop(contactData);
+
+      try {
+        // 3. Make the API request
+        final response = await _createUser(contactData);
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          // 4. Success: Safely context-check before popping back
+          if (mounted) {
+            await _showSuccessDialog(context);
+            // ignore: use_build_context_synchronously
+            Navigator.of(context).pop(contactData);
+          }
+        } else {
+          // COMBINED: Show a single SnackBar with both status and body
+          _showErrorSnackBar(
+            'Error ${response.statusCode}: Failed to save data.\nDetails: ${response.body}',
+          );
+        }
+      } catch (e) {
+        // COMBINED: Show a single SnackBar for network/system errors
+        _showErrorSnackBar(
+            'Network error. Check your connection.\nSystem Error: ${e.toString()}');
+      } finally {
+        // 6. Always turn off the loader when done
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
     }
+  }
+
+  Future<http.Response> _createUser(Map<String, String> data) async {
+    final Uri url = Uri.parse('https://api.learnexpo.in/users');
+
+    return await http.post(
+      url,
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(data),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating, // Optional: Looks a bit cleaner
+      ),
+    );
+  }
+
+  // Modern Success Dialog Design
+  Future<void> _showSuccessDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // User must tap button to close
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          elevation: 8,
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon Container
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.check_circle_rounded,
+                    color: Colors.green.shade600,
+                    size: 54,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Title
+                const Text(
+                  'Information Received!',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+
+                // Description Body
+                Text(
+                  'Thank you for submitting your details. If your information is correct, our team will call you shortly to guide you through the enrollment process and share the course details and brochure.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade700,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+
+                // Action Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade600,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text(
+                      'Got it, Thanks!',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -166,7 +316,7 @@ class _ClientContactDialogState extends State<ClientContactDialog> {
                     ),
                     const SizedBox(width: 12),
                     ElevatedButton(
-                      onPressed: _submitData,
+                      onPressed: _isLoading ? null : _submitData,
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
                         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -178,7 +328,14 @@ class _ClientContactDialogState extends State<ClientContactDialog> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Submit'),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2),
+                            )
+                          : const Text('Submit'),
                     ),
                   ],
                 ),

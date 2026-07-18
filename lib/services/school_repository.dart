@@ -1,10 +1,20 @@
 import '../models/school.dart';
 
+import '../core/network/api_result.dart';
+
+/// Contract every Schools data source must satisfy. Widgets depend on
+/// this, never on a concrete implementation.
+abstract class SchoolsRepositoryNetwork {
+  Future<ApiResult<List<School>>> getAll();
+  Future<ApiResult<School>> getById(String id);
+}
+
 /// Static, in-memory data source for Career Schools. Swap this for a real
 /// API/CMS call later — every consumer (teaser grid, detail page) already
 /// goes through [SchoolsRepository], so only this file changes.
 class SchoolsRepository {
   SchoolsRepository._();
+
 
   static const List<School> all = [
     School(
